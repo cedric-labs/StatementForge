@@ -5,7 +5,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>StatementForge</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>curvecoder</Authors>
+    <Company>curvecoder</Company>
+    <Description>High-performance streaming bank statement parser (OFX, QFX, CSV) with transaction deduplication, label normalization, and recurring expense detection.</Description>
+    <RepositoryUrl>https://github.com/curvecoder/StatementForge</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="README.md" />
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="StatementForge.Tests" />

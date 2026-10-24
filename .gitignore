@@ -17,3 +17,6 @@ coverage/
 ## Logs et caches
 *.log
 .dotnet/
+
+/nupkg/
+*.nupkg
