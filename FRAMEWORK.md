@@ -1,58 +1,62 @@
-# StatementForge — Spécification & Documentation IA du Framework
+<p align="right">
+  <b>English</b> | <a href="FRAMEWORK.fr.md">Français</a>
+</p>
 
-Ce document est le manifeste technique destiné à l'agent IA et aux développeurs. Il récapitule l'ensemble des capacités, composants et contrats publics exposés par **StatementForge**.
+# StatementForge — Framework Specification & AI Documentation
 
----
-
-## 🎯 Périmètre & Responsabilité
-
-StatementForge est la bibliothèque partagée .NET de traitement, de parsing et d'analyse algorithmique de **relevés bancaires et formats d'échange financier** (OFX 1.x SGML, OFX 2.x XML, QFX, CSV/TSV configurables, normalisation de libellés, détection de doublons, détection de récurrence et calcul de périodes glissantes/salariales). Elle est 100% agnostique du domaine applicatif et des bases de données.
+This document is the technical manifest intended for AI agents and software engineers. It outlines all capabilities, architectural components, and public contracts exposed by **StatementForge**.
 
 ---
 
-## 🧱 Composants & Capacités Détaillées
+## 🎯 Scope & Responsibility
 
-### 1. `StatementForge.Parsing` — Analyseurs de flux bancaires
-- **`IBankStatementParser`** (interface) :
-  - `string SupportedFormat` : Identifiant du format supporté (`OFX`, `CSV`).
-  - `bool CanHandle(string fileName, Stream stream)` : Détection par extension et inspection non destructive des premiers octets du flux.
-  - `Task<IReadOnlyList<StatementTransaction>> ParseAsync(Stream stream, CsvStatementOptions? options, CancellationToken cancellationToken)` : Extraction asynchrone des transactions normalisées avec annulation coopérative.
-- **`OfxStatementParser`** :
-  - Supporte les formats OFX 1.x (SGML avec balises non fermées) et OFX 2.x (XML standard).
-  - Découpage par blocs `<STMTTRN>` avec protection anti-ReDoS (délais d'expiration stricts sur les expressions régulières).
-  - `ExtractOfxAccountIdAsync(Stream stream, CancellationToken cancellationToken)` : Extraction statique non destructive de l'identifiant de compte bancaire (`<ACCTID>`).
-  - Normalisation des montants signés (`TRNAMT`) et conversion en types Débit / Crédit stricts.
-  - Parsing des dates compactes bancaires (`YYYYMMDD[HHMMSS]`) avec nettoyage des fuseaux horaires `[0:GMT]`.
-- **`CsvStatementParser`** :
-  - Découpage CSV/TSV conforme RFC 4180 avec gestion des guillemets d'échappement et délimiteurs personnalisables.
-  - Support des montants signés sur une colonne unique ou des colonnes Débit / Crédit distinctes.
-  - Tolérance multi-culturelle pour les séparateurs décimaux (`,`, `.`), séparateurs de milliers, espaces insécables et symboles monétaires (`€`, `EUR`, `$`).
+StatementForge is a shared .NET library dedicated to **banking statement processing, financial format parsing, and transactional algorithmic analysis** (OFX 1.x SGML, OFX 2.x XML, QFX, configurable CSV/TSV, label normalization, fuzzy duplicate detection, recurrence cadences, and sliding budget/payroll cycle calculations). It is 100% domain- and database-agnostic.
 
-### 2. `StatementForge.Analysis` — Normalisation, Doublons, Récurrence & Périodes
-- **`StatementLabelAnalyzer`** :
-  - `CleanTransactionLabel(string label, string? rawLabel)` : Nettoyage des préfixes bancaires (`PRLV SEPA`, `VIR`, `CB`, dates, identifiants numériques) et isolation des descripteurs de contrats (`AUTO`, `HABITATION`, `SANTE`, `BOX`, `MOBILE`, etc.).
-  - `FormatSuggestedName(string pattern)` : Formatage Title Case d'un émetteur normalisé.
-  - `MatchesPattern(string label, string? rawLabel, string pattern)` : Évaluation insensible à la casse par sous-chaîne, joker (`*`, `%`) ou expression régulière protégée contre le ReDoS.
-  - `MatchesAmount(decimal expectedAmount, decimal tolerancePercentage, decimal transactionAmount)` : Vérification d'appartenance d'un montant à une plage de tolérance relative.
-  - `ExtractMeaningfulTokens(string? label, string? rawLabel)` : Extraction des jetons alphanumériques significatifs (hors masques de carte `X\d{4}`, dates et mots-clés bancaires génériques).
-  - `IsLabelMatching(...)` & `IsTokenSetMatching(...)` : Détection floue de doublons inter-exports par recouvrement d'ensembles de jetons.
-- **`RecurringCadenceAnalyzer` & `StatementRecurrenceFrequency`** :
-  - `DetectCadence(IReadOnlyList<DateTime> orderedDates)` : Détection statistique des fréquences mensuelles, trimestrielles et annuelles à partir des écarts temporels.
-  - `AppliesToMonth(StatementRecurrenceFrequency frequency, int month)` : Détermination d'applicabilité d'une charge sur un mois donné.
-  - `CalculateConfidenceScore(int occurrencesCount, decimal minAmount, decimal maxAmount)` : Calcul du score de confiance (50 à 98%).
-- **`BudgetPeriodCalculator`** :
-  - `ResolvePeriod(...)`, `GetCurrentMonthRange(...)`, `GetLastMonthRange(...)` : Calcul de périodes glissantes (`two-weeks`, `three-months`, `six-months`, `all`, `custom`) et de cycles budgétaires/salariaux décalés (jour de début de mois paramétrable de 1 à 28).
+---
 
-### 3. `StatementForge.Models` — Contrats de données
+## 🧱 Components & Detailed Capabilities
+
+### 1. `StatementForge.Parsing` — Financial Statement Parsers
+- **`IBankStatementParser`** (interface):
+  - `string SupportedFormat`: Identifier of the supported format (`OFX`, `CSV`).
+  - `bool CanHandle(string fileName, Stream stream)`: Detection by file extension and non-destructive inspection of the stream header bytes.
+  - `Task<IReadOnlyList<StatementTransaction>> ParseAsync(Stream stream, CsvStatementOptions? options, CancellationToken cancellationToken)`: Asynchronous normalized transaction extraction with cooperative cancellation.
+- **`OfxStatementParser`**:
+  - Full support for OFX 1.x (SGML unclosed tags) and OFX 2.x (standard XML).
+  - Parsing of `<STMTTRN>` blocks with anti-ReDoS regex timeout defenses.
+  - `ExtractOfxAccountIdAsync(Stream stream, CancellationToken cancellationToken)`: Non-destructive static extraction of the account identifier (`<ACCTID>`).
+  - Signed amount normalization (`TRNAMT`) mapped to strictly typed Debit / Credit transaction semantics.
+  - Compact banking date parsing (`YYYYMMDD[HHMMSS]`) with timezone offset stripping (`[0:GMT]`).
+- **`CsvStatementParser`**:
+  - RFC 4180-compliant streaming delimited parsing with quote escaping and customizable delimiters.
+  - Dual support for signed single-column amounts or separated Debit / Credit columns.
+  - Cultural tolerance for decimal separators (`,`, `.`), thousands groupings, non-breaking spaces, and currency symbols (`€`, `EUR`, `$`).
+
+### 2. `StatementForge.Analysis` — Normalization, Deduplication, Cadence & Cycles
+- **`StatementLabelAnalyzer`**:
+  - `CleanTransactionLabel(string label, string? rawLabel)`: Strips banking transaction prefixes (`PRLV SEPA`, `VIR`, `CB`, dates, numeric IDs) and isolates contract tokens (`AUTO`, `HABITATION`, `SANTE`, `BOX`, `MOBILE`, etc.).
+  - `FormatSuggestedName(string pattern)`: Title Case formatting of normalized merchant/payee entities.
+  - `MatchesPattern(string label, string? rawLabel, string pattern)`: Case-insensitive evaluation via substring, wildcards (`*`, `%`), or ReDoS-guarded regular expressions.
+  - `MatchesAmount(decimal expectedAmount, decimal tolerancePercentage, decimal transactionAmount)`: Range tolerance validation for variable subscription charges.
+  - `ExtractMeaningfulTokens(string? label, string? rawLabel)`: Extracts meaningful alphanumeric tokens (filtering card masks `X\d{4}`, dates, and generic transaction words).
+  - `IsLabelMatching(...)` & `IsTokenSetMatching(...)`: Inter-export fuzzy duplicate detection via token set overlap algorithms.
+- **`RecurringCadenceAnalyzer` & `StatementRecurrenceFrequency`**:
+  - `DetectCadence(IReadOnlyList<DateTime> orderedDates)`: Statistical cadence determination (monthly, quarterly, annual) based on median temporal intervals.
+  - `AppliesToMonth(StatementRecurrenceFrequency frequency, int month)`: Evaluates recurrence applicability to a given calendar month.
+  - `CalculateConfidenceScore(int occurrencesCount, decimal minAmount, decimal maxAmount)`: Confidence scoring heuristic (50% to 98%).
+- **`BudgetPeriodCalculator`**:
+  - `ResolvePeriod(...)`, `GetCurrentMonthRange(...)`, `GetLastMonthRange(...)`: Sliding period resolution (`two-weeks`, `three-months`, `six-months`, `all`, `custom`) and shifted budget/payroll cycles (configurable start day from 1 to 28).
+
+### 3. `StatementForge.Models` — Data Contracts
 - **`StatementTransaction`** (`sealed record`), **`StatementTransactionType`** (`enum`), **`CsvStatementOptions`** (`sealed record`).
 
 ---
 
-## 📋 Protocole de Maintenance par l'Agent IA
+## 📋 Maintenance Protocol for AI Agents
 
-Toute modification de StatementForge doit respecter :
-1. **Rétrocompatibilité :** Conserver tous les contrats publics existants. Utiliser des surcharges ou des paramètres optionnels.
-2. **Qualité :** Zéro warning (`<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`), zéro pragma/suppress, `CancellationToken` systématique sur les I/O asynchrones.
-3. **Tests :** Nommage `MethodeCible_ScenarioOuCondition_ResultatAttendu`.
-4. **Mise à jour :** Compléter immédiatement ce fichier `FRAMEWORK.md` en cas d'ajout d'une nouvelle capacité.
-5. **Validation :** Valider par `./verify.ps1`.
+All enhancements to StatementForge must comply with:
+1. **Backward Compatibility:** Preserve all existing public contracts. Use overloads or optional parameters.
+2. **Code Cleanliness:** Zero warnings (`<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`), zero pragmas/suppressions, systematic `CancellationToken` on all async methods.
+3. **Testing Standards:** Test naming convention `TargetMethod_ScenarioOrCondition_ExpectedResult`.
+4. **Documentation:** Update both `FRAMEWORK.md` and `FRAMEWORK.fr.md` immediately upon introducing or modifying capabilities.
+5. **Validation:** Full pass of `./verify.ps1`.
