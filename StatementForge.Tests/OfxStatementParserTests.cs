@@ -1,5 +1,5 @@
 using System.Text;
-using FluentAssertions;
+using AwesomeAssertions;
 using StatementForge.Models;
 using StatementForge.Parsing;
 using Xunit;

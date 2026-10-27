@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using StatementForge.Analysis;
 using Xunit;
 
