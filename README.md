@@ -46,7 +46,7 @@ High-performance, domain-agnostic .NET streaming parser and algorithmic analyzer
 Add the package via the .NET CLI:
 
 ```bash
-dotnet add package StatementForge --version 1.0.0
+dotnet add package StatementForge --version 1.1.0
 ```
 
 ---
