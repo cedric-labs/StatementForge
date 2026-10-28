@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>StatementForge</PackageId>
-    <Version>1.0.0</Version>
     <Authors>curvecoder</Authors>
     <Company>curvecoder</Company>
     <Description>High-performance streaming bank statement parser (OFX, QFX, CSV) with transaction deduplication, label normalization, and recurring expense detection.</Description>
