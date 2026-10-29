@@ -1,57 +1,57 @@
 namespace StatementForge.Models;
 
 /// <summary>
-/// Options de configuration pour le parsing de relevés bancaires au format tabulaire CSV / TSV / TXT.
+/// Options for parsing tabular bank statements (CSV, TSV, TXT).
 /// </summary>
 public sealed record CsvStatementOptions
 {
     /// <summary>
-    /// Délimiteur de colonnes (point-virgule par défaut).
+    /// Column delimiter (semicolon by default).
     /// </summary>
     public string Delimiter { get; init; } = ";";
 
     /// <summary>
-    /// Séparateur décimal pour les montants (virgule par défaut).
+    /// Decimal separator of the amounts (comma by default).
     /// </summary>
     public string DecimalSeparator { get; init; } = ",";
 
     /// <summary>
-    /// Format de date attendu (ex: dd/MM/yyyy).
+    /// Expected date format (for example dd/MM/yyyy).
     /// </summary>
     public string DateFormat { get; init; } = "dd/MM/yyyy";
 
     /// <summary>
-    /// Indique si la première ligne non vide est une ligne d'en-tête à ignorer.
+    /// Whether the first non-empty line is a header line to skip.
     /// </summary>
     public bool HasHeader { get; init; } = true;
 
     /// <summary>
-    /// Index de colonne contenant la date (0 par défaut).
+    /// Index of the date column (0 by default).
     /// </summary>
     public int DateColumnIndex { get; init; }
 
     /// <summary>
-    /// Index de colonne contenant le libellé de l'opération (1 par défaut).
+    /// Index of the transaction label column (1 by default).
     /// </summary>
     public int LabelColumnIndex { get; init; } = 1;
 
     /// <summary>
-    /// Index de colonne unique contenant le montant signé (optionnel si débit/crédit séparés).
+    /// Index of the single signed amount column (optional when debit and credit are separate).
     /// </summary>
     public int? AmountColumnIndex { get; init; } = 2;
 
     /// <summary>
-    /// Index de colonne contenant le montant du débit (optionnel).
+    /// Index of the debit amount column (optional).
     /// </summary>
     public int? DebitColumnIndex { get; init; }
 
     /// <summary>
-    /// Index de colonne contenant le montant du crédit (optionnel).
+    /// Index of the credit amount column (optional).
     /// </summary>
     public int? CreditColumnIndex { get; init; }
 
     /// <summary>
-    /// Index de colonne contenant la référence ou l'identifiant d'opération (optionnel).
+    /// Index of the transaction reference or identifier column (optional).
     /// </summary>
     public int? ReferenceColumnIndex { get; init; }
 }

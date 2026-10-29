@@ -1,47 +1,47 @@
 namespace StatementForge.Models;
 
 /// <summary>
-/// Représente une opération bancaire extraite d'un relevé de compte.
+/// A bank transaction extracted from an account statement.
 /// </summary>
 public sealed record StatementTransaction
 {
     /// <summary>
-    /// Date de valeur ou d'enregistrement de l'opération bancaire.
+    /// Value date or booking date of the transaction.
     /// </summary>
     public required DateTime Date { get; init; }
 
     /// <summary>
-    /// Montant absolu de l'opération (toujours positif).
+    /// Absolute amount of the transaction (always positive).
     /// </summary>
     public required decimal Amount { get; init; }
 
     /// <summary>
-    /// Type de flux de l'opération (Débit ou Crédit).
+    /// Direction of the transaction (debit or credit).
     /// </summary>
     public required StatementTransactionType Type { get; init; }
 
     /// <summary>
-    /// Libellé nettoyé et normalisé de l'opération.
+    /// Cleaned and normalized transaction label.
     /// </summary>
     public required string Label { get; init; }
 
     /// <summary>
-    /// Libellé brut d'origine tel que présent dans le relevé.
+    /// Original raw label, as found in the statement.
     /// </summary>
     public string? RawLabel { get; init; }
 
     /// <summary>
-    /// Référence ou identifiant unique d'opération (FITID, numéro de chèque, etc.).
+    /// Transaction reference or unique identifier (FITID, cheque number, and so on).
     /// </summary>
     public string? Reference { get; init; }
 
     /// <summary>
-    /// Identifiant externe pérenne fourni par la source bancaire.
+    /// Stable external identifier provided by the bank.
     /// </summary>
     public string? ExternalId { get; init; }
 
     /// <summary>
-    /// Catégorie candidate éventuellement extraite des métadonnées du relevé.
+    /// Candidate category taken from the statement metadata, if any.
     /// </summary>
     public string? CategoryCandidate { get; init; }
 }

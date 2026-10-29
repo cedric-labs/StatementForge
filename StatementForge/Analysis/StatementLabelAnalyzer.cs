@@ -3,8 +3,8 @@ using System.Text.RegularExpressions;
 namespace StatementForge.Analysis;
 
 /// <summary>
-/// Analyseur de libellés bancaires fournissant la normalisation d'émetteur, l'extraction de jetons
-/// significatifs, la détection de doublons par ensemble de jetons et la correspondance de motifs.
+/// Analyzes bank transaction labels: payee normalization, extraction of significant
+/// tokens, duplicate detection by token sets and pattern matching.
 /// </summary>
 public static class StatementLabelAnalyzer
 {
@@ -23,12 +23,12 @@ public static class StatementLabelAnalyzer
     };
 
     /// <summary>
-    /// Vérifie si un montant d'opération correspond au montant attendu selon une tolérance relative.
+    /// Checks whether a transaction amount matches the expected amount within a relative tolerance.
     /// </summary>
-    /// <param name="expectedAmount">Montant de référence attendu.</param>
-    /// <param name="tolerancePercentage">Tolérance relative (ex: <c>0.05m</c> pour 5%).</param>
-    /// <param name="transactionAmount">Montant réel de la transaction.</param>
-    /// <returns><c>true</c> si le montant est compris dans l'intervalle de tolérance ; sinon, <c>false</c>.</returns>
+    /// <param name="expectedAmount">Expected reference amount.</param>
+    /// <param name="tolerancePercentage">Relative tolerance (for example <c>0.05m</c> for 5%).</param>
+    /// <param name="transactionAmount">Actual transaction amount.</param>
+    /// <returns><c>true</c> when the amount is within the tolerance; otherwise <c>false</c>.</returns>
     public static bool MatchesAmount(decimal expectedAmount, decimal tolerancePercentage, decimal transactionAmount)
     {
         if (expectedAmount <= 0)
@@ -48,12 +48,12 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Vérifie si le libellé ou le libellé brut d'une opération correspond à un motif (sous-chaîne, joker <c>*</c>/<c>%</c> ou expression régulière).
+    /// Checks whether the label or raw label of a transaction matches a pattern (substring, <c>*</c>/<c>%</c> wildcard or regular expression).
     /// </summary>
-    /// <param name="label">Libellé principal de l'opération.</param>
-    /// <param name="rawLabel">Libellé brut optionnel.</param>
-    /// <param name="pattern">Motif de recherche.</param>
-    /// <returns><c>true</c> si le motif correspond ; sinon, <c>false</c>.</returns>
+    /// <param name="label">Main transaction label.</param>
+    /// <param name="rawLabel">Optional raw label.</param>
+    /// <param name="pattern">Search pattern.</param>
+    /// <returns><c>true</c> when the pattern matches; otherwise <c>false</c>.</returns>
     public static bool MatchesPattern(string label, string? rawLabel, string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))
@@ -112,12 +112,12 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Nettoie les préfixes bancaires bruyants (<c>PRLV</c>, <c>VIR</c>, <c>CB</c>, dates, références)
-    /// pour extraire l'émetteur normalisé et son descripteur de contrat éventuel.
+    /// Strips the noisy bank prefixes (<c>PRLV</c>, <c>VIR</c>, <c>CB</c>, dates, references)
+    /// to extract the normalized payee and its contract descriptor, if any.
     /// </summary>
-    /// <param name="label">Libellé principal de l'opération.</param>
-    /// <param name="rawLabel">Libellé brut optionnel.</param>
-    /// <returns>Clé d'émetteur normalisée en majuscules.</returns>
+    /// <param name="label">Main transaction label.</param>
+    /// <param name="rawLabel">Optional raw label.</param>
+    /// <returns>Normalized payee key, in upper case.</returns>
     public static string CleanTransactionLabel(string label, string? rawLabel)
     {
         var combined = $"{label} {rawLabel ?? string.Empty}".Trim();
@@ -162,10 +162,10 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Formate un motif d'émetteur normalisé en nom suggéré lisible (Title Case).
+    /// Formats a normalized payee pattern as a readable suggested name (Title Case).
     /// </summary>
-    /// <param name="pattern">Motif normalisé.</param>
-    /// <returns>Nom formaté avec initiale majuscule sur chaque mot.</returns>
+    /// <param name="pattern">Normalized pattern.</param>
+    /// <returns>The name with each word capitalized.</returns>
     public static string FormatSuggestedName(string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))
@@ -186,12 +186,12 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Extrait l'ensemble des jetons alphanumériques significatifs d'un libellé bancaire
-    /// en filtrant les masques de carte, les dates et le vocabulaire bancaire générique.
+    /// Extracts the significant alphanumeric tokens of a bank label,
+    /// leaving out card masks, dates and generic banking vocabulary.
     /// </summary>
-    /// <param name="label">Libellé principal.</param>
-    /// <param name="rawLabel">Libellé brut optionnel.</param>
-    /// <returns>Ensemble insensible à la casse des jetons significatifs.</returns>
+    /// <param name="label">Main label.</param>
+    /// <param name="rawLabel">Optional raw label.</param>
+    /// <returns>Case-insensitive set of the significant tokens.</returns>
     public static HashSet<string> ExtractMeaningfulTokens(string? label, string? rawLabel)
     {
         var text = $"{label} {rawLabel}".Trim();
@@ -211,13 +211,13 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Détermine si les jetons d'une opération candidate correspondent au libellé d'une opération existante.
+    /// Determines whether the tokens of a candidate transaction match the label of an existing transaction.
     /// </summary>
-    /// <param name="candidateTokens">Jetons extraits de l'opération candidate.</param>
-    /// <param name="existingLabel">Libellé de l'opération existante.</param>
-    /// <param name="existingRawLabel">Libellé brut de l'opération existante.</param>
-    /// <param name="sameDate">Indique si les deux opérations portent exactement la même date.</param>
-    /// <returns><c>true</c> si les libellés sont considérés similaires ; sinon, <c>false</c>.</returns>
+    /// <param name="candidateTokens">Tokens extracted from the candidate transaction.</param>
+    /// <param name="existingLabel">Label of the existing transaction.</param>
+    /// <param name="existingRawLabel">Raw label of the existing transaction.</param>
+    /// <param name="sameDate">Whether both transactions have exactly the same date.</param>
+    /// <returns><c>true</c> when the labels are considered similar; otherwise <c>false</c>.</returns>
     public static bool IsLabelMatching(
         IReadOnlySet<string> candidateTokens,
         string? existingLabel,
@@ -229,12 +229,12 @@ public static class StatementLabelAnalyzer
     }
 
     /// <summary>
-    /// Détermine si deux ensembles de jetons significatifs présentent un recouvrement suffisant pour être considérés comme doublons.
+    /// Determines whether two sets of significant tokens overlap enough to be considered duplicates.
     /// </summary>
-    /// <param name="tokensA">Premier ensemble de jetons.</param>
-    /// <param name="tokensB">Second ensemble de jetons.</param>
-    /// <param name="sameDate">Indique si les deux opérations portent exactement la même date.</param>
-    /// <returns><c>true</c> s'il existe une intersection non vide ou si les deux ensembles sont vides à la même date.</returns>
+    /// <param name="tokensA">First token set.</param>
+    /// <param name="tokensB">Second token set.</param>
+    /// <param name="sameDate">Whether both transactions have exactly the same date.</param>
+    /// <returns><c>true</c> when the sets intersect, or when both are empty on the same date.</returns>
     public static bool IsTokenSetMatching(
         IReadOnlySet<string> tokensA,
         IReadOnlySet<string> tokensB,

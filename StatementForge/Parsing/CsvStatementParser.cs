@@ -4,8 +4,8 @@ using StatementForge.Models;
 namespace StatementForge.Parsing;
 
 /// <summary>
-/// Stratégie de parsing pour les fichiers tabulaires bancaires (CSV, TSV, TXT).
-/// S'adapte à la structure de chaque établissement bancaire via des options configurables.
+/// Parser for tabular bank statement files (CSV, TSV, TXT).
+/// Configurable options adapt it to the layout of each bank.
 /// </summary>
 public class CsvStatementParser : IBankStatementParser
 {
@@ -57,27 +57,27 @@ public class CsvStatementParser : IBankStatementParser
 
             isFirstLine = false;
 
-            // Découpage en respectant les délimiteurs et les guillemets
+            // Split on the delimiter while honouring quotes
             var columns = SplitCsvLine(line, delimiterChar);
             if (columns.Length <= Math.Max(profile.DateColumnIndex, profile.LabelColumnIndex))
             {
-                continue; // Ligne incomplète ou ignorée
+                continue; // Incomplete line
             }
 
-            // 1. Parsing de la date
+            // 1. Date
             var rawDate = columns[profile.DateColumnIndex].Trim('"', ' ');
             if (!DateTime.TryParseExact(rawDate, profile.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) &&
                 !DateTime.TryParse(rawDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out date) &&
                 !DateTime.TryParse(rawDate, CultureInfo.CurrentCulture, DateTimeStyles.None, out date))
             {
-                continue; // Ligne d'en-tête résiduelle ou format invalide
+                continue; // Leftover header line or invalid format
             }
 
-            // 2. Libellé
+            // 2. Label
             var rawLabel = columns[profile.LabelColumnIndex].Trim('"', ' ');
             var label = CleanBankLabel(rawLabel);
 
-            // 3. Montant et Type
+            // 3. Amount and type
             decimal amount = 0m;
             var type = StatementTransactionType.Debit;
 
@@ -100,7 +100,7 @@ public class CsvStatementParser : IBankStatementParser
             }
             else if (profile.DebitColumnIndex.HasValue || profile.CreditColumnIndex.HasValue)
             {
-                // Gestion de colonnes séparées Débit et Crédit
+                // Separate debit and credit columns
                 if (profile.DebitColumnIndex.HasValue && profile.DebitColumnIndex.Value < columns.Length)
                 {
                     var rawDebit = columns[profile.DebitColumnIndex.Value].Trim('"', ' ');
@@ -124,10 +124,10 @@ public class CsvStatementParser : IBankStatementParser
 
             if (amount == 0)
             {
-                continue; // Ligne sans montant valide
+                continue; // Line without a valid amount
             }
 
-            // 4. Référence optionnelle
+            // 4. Optional reference
             string? reference = null;
             if (profile.ReferenceColumnIndex.HasValue && profile.ReferenceColumnIndex.Value < columns.Length)
             {
@@ -172,7 +172,7 @@ public class CsvStatementParser : IBankStatementParser
             return false;
         }
 
-        // Nettoyage devises (€, EUR, $), espaces insécables et séparateurs de milliers
+        // Remove currency marks (€, EUR, $), non-breaking spaces and thousands separators
         var clean = raw.Replace("€", "", StringComparison.Ordinal)
                        .Replace("EUR", "", StringComparison.Ordinal)
                        .Replace("$", "", StringComparison.Ordinal)

@@ -5,8 +5,8 @@ using StatementForge.Models;
 namespace StatementForge.Parsing;
 
 /// <summary>
-/// Stratégie de parsing pour le format standard bancaire international OFX (Open Financial Exchange).
-/// Prend en charge les formats OFX 1.x (SGML) et 2.x (XML standard) ainsi que le format Quicken QFX.
+/// Parser for the international OFX (Open Financial Exchange) bank format.
+/// Handles OFX 1.x (SGML), OFX 2.x (XML) and the Quicken QFX format.
 /// </summary>
 public class OfxStatementParser : IBankStatementParser
 {
@@ -29,11 +29,11 @@ public class OfxStatementParser : IBankStatementParser
     public string SupportedFormat => "OFX";
 
     /// <summary>
-    /// Extrait la valeur de la balise &lt;ACCTID&gt; depuis un fichier ou flux OFX.
+    /// Extracts the value of the &lt;ACCTID&gt; tag from an OFX file or stream.
     /// </summary>
-    /// <param name="stream">Flux contenant le relevé OFX.</param>
-    /// <param name="cancellationToken">Jeton d'annulation coopérative.</param>
-    /// <returns>Identifiant du compte bancaire ou null si absent.</returns>
+    /// <param name="stream">Stream that holds the OFX statement.</param>
+    /// <param name="cancellationToken">Cooperative cancellation token.</param>
+    /// <returns>The bank account identifier, or null when absent.</returns>
     public static async Task<string?> ExtractOfxAccountIdAsync(Stream stream, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -75,7 +75,7 @@ public class OfxStatementParser : IBankStatementParser
             return true;
         }
 
-        // Inspection des premiers octets du flux
+        // Inspect the first bytes of the stream
         try
         {
             if (stream.CanSeek)
@@ -129,10 +129,10 @@ public class OfxStatementParser : IBankStatementParser
                 continue;
             }
 
-            // 1. Parsing de la date (Format standard OFX: YYYYMMDDHHMMSS ou YYYYMMDD)
+            // 1. Date (standard OFX format: YYYYMMDDHHMMSS or YYYYMMDD)
             var date = ParseOfxDate(dtPosted);
 
-            // 2. Montant (toujours avec '.' en standard OFX)
+            // 2. Amount (standard OFX always uses '.')
             if (!decimal.TryParse(trnAmt.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var amountVal))
             {
                 continue;
@@ -141,7 +141,7 @@ public class OfxStatementParser : IBankStatementParser
             var type = amountVal < 0 ? StatementTransactionType.Debit : StatementTransactionType.Credit;
             var absAmount = Math.Abs(amountVal);
 
-            // 3. Libellé composé (NAME + MEMO)
+            // 3. Label built from NAME and MEMO
             string label;
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -157,7 +157,7 @@ public class OfxStatementParser : IBankStatementParser
             }
             var rawLabel = $"{name} {memo}".Trim();
 
-            // Extraction éventuelle de catégorie depuis MEMO (format standard "Catégorie - Détails")
+            // Category taken from MEMO when it follows the usual "Category - Details" form
             string? categoryCandidate = null;
             if (!string.IsNullOrEmpty(memo) && memo.Contains(" - "))
             {
@@ -186,7 +186,7 @@ public class OfxStatementParser : IBankStatementParser
 
     private static string? ExtractTagValue(string block, string tag)
     {
-        // En SGML, la balise de fermeture peut être omise (<TAG>Valeur\n<NEXTTAG>)
+        // In SGML the closing tag may be omitted (<TAG>Value\n<NEXTTAG>)
         var match = Regex.Match(
             block,
             $@"<{tag}>(?<val>.*?)(?:<\/{tag}>|\r?\n|\Z)",
@@ -198,7 +198,7 @@ public class OfxStatementParser : IBankStatementParser
 
     private static DateTime ParseOfxDate(string raw)
     {
-        // Nettoyage de la composante fuseau horaire [0:GMT]
+        // Remove the time zone part [0:GMT]
         var cleaned = TimeZoneBracketRegex.Replace(raw, string.Empty).Trim();
         if (cleaned.Length >= 8)
         {

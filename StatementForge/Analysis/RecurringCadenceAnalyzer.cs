@@ -1,34 +1,34 @@
 namespace StatementForge.Analysis;
 
 /// <summary>
-/// Fréquence de récurrence détectée pour une série d'opérations bancaires.
+/// Recurrence frequency detected for a series of bank transactions.
 /// </summary>
 public enum StatementRecurrenceFrequency
 {
-    /// <summary>Fréquence mensuelle (~30 jours).</summary>
+    /// <summary>Monthly (~30 days).</summary>
     Monthly = 0,
 
-    /// <summary>Fréquence trimestrielle (~90 jours).</summary>
+    /// <summary>Quarterly (~90 days).</summary>
     Quarterly = 1,
 
-    /// <summary>Fréquence semestrielle (~180 jours).</summary>
+    /// <summary>Half-yearly (~180 days).</summary>
     Biannual = 2,
 
-    /// <summary>Fréquence annuelle (~365 jours).</summary>
+    /// <summary>Yearly (~365 days).</summary>
     Annual = 3
 }
 
 /// <summary>
-/// Analyseur statistique de cadence temporelle et de régularité des montants pour la détection de charges récurrentes.
+/// Measures the time cadence and amount regularity of transactions to detect recurring charges.
 /// </summary>
 public static class RecurringCadenceAnalyzer
 {
     /// <summary>
-    /// Détermine si une échéance récurrente s'applique à un mois calendaire donné (1 à 12).
+    /// Determines whether a recurring charge falls due in a given calendar month (1 to 12).
     /// </summary>
-    /// <param name="frequency">Fréquence de la charge récurrente.</param>
-    /// <param name="month">Numéro du mois (1 à 12).</param>
-    /// <returns><c>true</c> si la charge est attendue sur ce mois ; sinon, <c>false</c>.</returns>
+    /// <param name="frequency">Frequency of the recurring charge.</param>
+    /// <param name="month">Month number (1 to 12).</param>
+    /// <returns><c>true</c> when the charge is expected that month; otherwise <c>false</c>.</returns>
     public static bool AppliesToMonth(StatementRecurrenceFrequency frequency, int month) =>
         frequency switch
         {
@@ -40,10 +40,10 @@ public static class RecurringCadenceAnalyzer
         };
 
     /// <summary>
-    /// Analyse une liste ordonnée de dates d'opérations et détecte la fréquence probable ainsi que la régularité de la cadence.
+    /// Analyzes an ordered list of transaction dates and detects the likely frequency and how regular the cadence is.
     /// </summary>
-    /// <param name="orderedDates">Dates d'opérations triées par ordre chronologique.</param>
-    /// <returns>Un tuple indiquant si une cadence valide est détectée, la fréquence et la régularité.</returns>
+    /// <param name="orderedDates">Transaction dates in chronological order.</param>
+    /// <returns>A tuple telling whether a valid cadence was detected, with its frequency and regularity.</returns>
     public static (bool IsDetected, StatementRecurrenceFrequency Frequency, bool IsRegularCadence) DetectCadence(IReadOnlyList<DateTime> orderedDates)
     {
         ArgumentNullException.ThrowIfNull(orderedDates);
@@ -89,12 +89,12 @@ public static class RecurringCadenceAnalyzer
     }
 
     /// <summary>
-    /// Calcule un score de confiance (de 50 à 98) pour un groupe d'opérations récurrentes candidates.
+    /// Computes a confidence score (50 to 98) for a group of candidate recurring transactions.
     /// </summary>
-    /// <param name="occurrencesCount">Nombre d'occurrences observées.</param>
-    /// <param name="minAmount">Montant minimal observé.</param>
-    /// <param name="maxAmount">Montant maximal observé.</param>
-    /// <returns>Score de confiance borné entre 50 et 98.</returns>
+    /// <param name="occurrencesCount">Number of observed occurrences.</param>
+    /// <param name="minAmount">Smallest observed amount.</param>
+    /// <param name="maxAmount">Largest observed amount.</param>
+    /// <returns>Confidence score between 50 and 98.</returns>
     public static int CalculateConfidenceScore(int occurrencesCount, decimal minAmount, decimal maxAmount)
     {
         int score = 50;

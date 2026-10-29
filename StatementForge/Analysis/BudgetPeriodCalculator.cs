@@ -1,41 +1,41 @@
 namespace StatementForge.Analysis;
 
 /// <summary>
-/// Calculateur de périodes glissantes, mensuelles et salariales pour le filtrage d'opérations bancaires.
+/// Computes rolling, calendar-month and salary-month periods used to filter bank transactions.
 /// </summary>
 public static class BudgetPeriodCalculator
 {
-    /// <summary>Code de la période du mois en cours.</summary>
+    /// <summary>Code of the current month period.</summary>
     public const string CurrentMonth = "current-month";
 
-    /// <summary>Code de la période des 14 derniers jours.</summary>
+    /// <summary>Code of the last 14 days period.</summary>
     public const string TwoWeeks = "two-weeks";
 
-    /// <summary>Code de la période du mois précédent.</summary>
+    /// <summary>Code of the previous month period.</summary>
     public const string LastMonth = "last-month";
 
-    /// <summary>Code de la période des 3 derniers mois.</summary>
+    /// <summary>Code of the last 3 months period.</summary>
     public const string ThreeMonths = "three-months";
 
-    /// <summary>Code de la période des 6 derniers mois.</summary>
+    /// <summary>Code of the last 6 months period.</summary>
     public const string SixMonths = "six-months";
 
-    /// <summary>Code désignant l'intégralité de l'historique sans borne de date.</summary>
+    /// <summary>Code of the whole history, with no date bound.</summary>
     public const string All = "all";
 
-    /// <summary>Code d'une plage de dates personnalisée.</summary>
+    /// <summary>Code of a custom date range.</summary>
     public const string Custom = "custom";
 
     /// <summary>
-    /// Résout la période et les dates de début/fin en fonction des paramètres transmis.
+    /// Resolves the period and its start and end dates from the given parameters.
     /// </summary>
-    /// <param name="requestedPeriod">Identifiant de période demandé.</param>
-    /// <param name="requestedStartDate">Date de début manuelle optionnelle.</param>
-    /// <param name="requestedEndDate">Date de fin manuelle optionnelle.</param>
-    /// <param name="defaultPeriodFallback">Période par défaut si non spécifiée.</param>
-    /// <param name="salaryMonthStartDay">Jour du mois de début du cycle budgétaire/salarial (1 à 28).</param>
-    /// <param name="today">Date de référence optionnelle (par défaut <see cref="DateTime.Today"/>).</param>
-    /// <returns>Un tuple contenant la date de début, la date de fin et le code de période résolu.</returns>
+    /// <param name="requestedPeriod">Requested period code.</param>
+    /// <param name="requestedStartDate">Optional manual start date.</param>
+    /// <param name="requestedEndDate">Optional manual end date.</param>
+    /// <param name="defaultPeriodFallback">Period used when none is requested.</param>
+    /// <param name="salaryMonthStartDay">Day of the month on which the budget or salary cycle starts (1 to 28).</param>
+    /// <param name="today">Optional reference date (defaults to <see cref="DateTime.Today"/>).</param>
+    /// <returns>A tuple with the start date, the end date and the resolved period code.</returns>
     public static (DateTime? StartDate, DateTime? EndDate, string Period) ResolvePeriod(
         string? requestedPeriod,
         DateTime? requestedStartDate,
@@ -70,11 +70,11 @@ public static class BudgetPeriodCalculator
     }
 
     /// <summary>
-    /// Calcule les bornes du mois courant (calendaire ou salarial glissant).
+    /// Computes the bounds of the current month (calendar or rolling salary month).
     /// </summary>
-    /// <param name="today">Date de référence.</param>
-    /// <param name="salaryMonthStartDay">Jour de début du cycle salarial (1 à 28).</param>
-    /// <returns>Bornes de début et de fin du mois en cours.</returns>
+    /// <param name="today">Reference date.</param>
+    /// <param name="salaryMonthStartDay">Day the salary cycle starts (1 to 28).</param>
+    /// <returns>Start and end bounds of the current month.</returns>
     public static (DateTime? StartDate, DateTime? EndDate, string Period) GetCurrentMonthRange(DateTime today, int salaryMonthStartDay = 1)
     {
         if (salaryMonthStartDay is <= 1 or > 28)
@@ -93,11 +93,11 @@ public static class BudgetPeriodCalculator
     }
 
     /// <summary>
-    /// Calcule les bornes du mois précédent (calendaire ou salarial glissant).
+    /// Computes the bounds of the previous month (calendar or rolling salary month).
     /// </summary>
-    /// <param name="today">Date de référence.</param>
-    /// <param name="salaryMonthStartDay">Jour de début du cycle salarial (1 à 28).</param>
-    /// <returns>Bornes de début et de fin du mois précédent.</returns>
+    /// <param name="today">Reference date.</param>
+    /// <param name="salaryMonthStartDay">Day the salary cycle starts (1 to 28).</param>
+    /// <returns>Start and end bounds of the previous month.</returns>
     public static (DateTime? StartDate, DateTime? EndDate, string Period) GetLastMonthRange(DateTime today, int salaryMonthStartDay = 1)
     {
         if (salaryMonthStartDay is <= 1 or > 28)

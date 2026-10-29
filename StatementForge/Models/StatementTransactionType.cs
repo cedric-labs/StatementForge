@@ -1,17 +1,17 @@
 namespace StatementForge.Models;
 
 /// <summary>
-/// Indique le sens du flux financier d'une transaction bancaire.
+/// Direction of the money flow of a bank transaction.
 /// </summary>
 public enum StatementTransactionType
 {
     /// <summary>
-    /// Débit (sortie d'argent / dépense).
+    /// Debit (money out, expense).
     /// </summary>
     Debit,
 
     /// <summary>
-    /// Crédit (entrée d'argent / revenu).
+    /// Credit (money in, income).
     /// </summary>
     Credit
 }
