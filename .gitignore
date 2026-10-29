@@ -1,4 +1,4 @@
-## Ignorés pour .NET et Visual Studio
+## IgnorÃ©s pour .NET et Visual Studio
 [Bb]in/
 [Oo]bj/
 .vs/
@@ -20,3 +20,4 @@ coverage/
 
 /nupkg/
 *.nupkg
+.sonar-token
